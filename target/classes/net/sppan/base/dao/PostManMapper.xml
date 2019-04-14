@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.sppan.base.dao.PostManMapper">
+    <resultMap id="postmanMapper" type="net.sppan.base.entity.test.PostmanExt">
+        <result property="id" column="id"></result>
+        <result property="postman" column="postman"></result>
+        <result property="manname" column="manname"></result>
+        <result property="manId" column="manId"></result>
+        <result property="zt" column="zt"></result>
+    </resultMap>
+
+    <resultMap id="existpostmanMapper" type="net.sppan.base.entity.test.PostmanExt">
+    <result property="manId" column="manId"></result>
+    <result property="manname" column="manname"></result>
+    </resultMap>
+
+    <select id="selectListBypostman"  parameterType="net.sppan.base.entity.condition.ConditionRoleMan"  resultMap="postmanMapper">
+
+        select tp.id'id',tp.`name`'postman',tw.`name`'manname',tw.id'manId',tw.`status`'zt'
+        from tb_post tp JOIN tb_post_man tpm on (tp.id=tpm.post_id)
+        join tb_workman tw on(tw.wid=tpm.man_id) where tw.`status`&lt;&gt;0
+        <if test="postMan!=null and postMan!=''">
+            and  tp.`name`like '%${postMan}%'
+        </if>
+        <if test="manName!=null and manName!=''">
+            and     tw.`name`like '%${manName}%'
+        </if>
+        ORDER BY  tp.id
+    </select>
+
+
+    <select id="selectExistManlistBypostid"  parameterType="net.sppan.base.entity.condition.ConditionRoleMan"  resultMap="existpostmanMapper">
+        select tw.id 'manId',tw.`name`'manname'
+        from tb_workman tw
+        where  EXISTS(
+        select 1 from tb_post_man tpm LEFT  JOIN tb_post tp
+        on tp.id=tpm.post_id where tpm.man_id=tw.wid  and tw.`status`&lt;&gt;0
+    <if test="postId!=null and postId!=''">
+        and tp.id= #{postId}
+    </if>
+    )
+</select>
+
+
+    <select id="selectNoExistManlistBypostid"  parameterType="net.sppan.base.entity.condition.ConditionRoleMan"  resultMap="existpostmanMapper">
+        select tw.id 'manId',tw.`name`'manname'
+        from tb_workman tw
+        where NOT EXISTS(
+        select 1 from tb_post_man tpm LEFT  JOIN tb_post tp
+        on tp.id=tpm.post_id where tpm.man_id=tw.wid  and tw.`status`&lt;&gt;0
+        <if test="postId!=null and postId!=''">
+            and tp.id= #{postId}
+        </if>
+        )
+    </select>
+</mapper>

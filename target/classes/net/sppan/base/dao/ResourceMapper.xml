@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.sppan.base.dao.ResourceMapper">
+    <resultMap id="resourceMapper" type="net.sppan.base.entity.ResourceExt">
+        <id property="id" column="one_id"></id>
+        <result property="text" column="one_name"></result>
+        <result property="sourceUrl" column="one_url"></result>
+        <collection property="nodes" ofType="net.sppan.base.entity.ResourceExt">
+            <id property="id" column="two_id"></id>
+            <result property="text" column="two_name"></result>
+            <result property="sourceUrl" column="two_url"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectList" parameterType="int"
+            resultMap="resourceMapper">
+         SELECT  A.id one_id,A.name one_name,A.source_url one_url,
+       b.id two_id,b.name two_name,b.source_url two_url
+from(
+SELECT id,name,parent_id,source_url
+            FROM tb_resource
+            WHERE parent_id is null
+           )AS A RIGHT JOIN  (
+SELECT  tr.id, tr.name, tr.parent_id,tr.source_url
+        FROM tb_resource tr LEFT JOIN tb_role_resource trr on tr.id=trr.resource_id
+LEFT JOIN tb_role rr on rr.id=trr.role_id
+        WHERE parent_id IN (
+                SELECT    id
+                FROM tb_resource
+                WHERE parent_id is null
+            )and rr.id=#{roleId})AS b on b.parent_id=A.id
+    </select>
+</mapper>

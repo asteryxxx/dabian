@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.sppan.base.dao.RoleManMapper">
+    <resultMap id="rolemanMapper" type="net.sppan.base.entity.test.RolemanExt">
+        <result property="id" column="id"></result>
+        <result property="roleman" column="roleman"></result>
+        <result property="manname" column="manname"></result>
+        <result property="manId" column="manId"></result>
+        <result property="zt" column="zt"></result>
+    </resultMap>
+
+    <resultMap id="existrolemanMapper" type="net.sppan.base.entity.test.RolemanExt">
+    <result property="manId" column="manId"></result>
+    <result property="manname" column="manname"></result>
+    </resultMap>
+
+    <select id="selectListByroleman"  parameterType="net.sppan.base.entity.condition.ConditionRoleMan"  resultMap="rolemanMapper">
+      select tr.id'id',tr.`name`'roleman',tw.`name`'manname',tw.id'manId',tw.`status`'zt'
+ from tb_role tr JOIN tb_role_man trm on (tr.id=trm.role_id)
+join tb_workman tw on(tw.wid=trm.man_id) where tw.`status`&lt;&gt;0
+    <if test="roleMan!=null and roleMan!=''">
+      and  tr.`name`like '%${roleMan}%'
+    </if>
+        <if test="manName!=null and manName!=''">
+       and     tw.`name`like '%${manName}%'
+        </if>
+ORDER BY tr.id
+    </select>
+
+
+    <select id="selectExistManlistByroleid"  parameterType="net.sppan.base.entity.condition.ConditionRoleMan"  resultMap="existrolemanMapper">
+    select tw.id 'manId',tw.`name`'manname'
+    from tb_workman tw
+    where  EXISTS(
+    select 1 from tb_role_man trm LEFT  JOIN tb_role tr
+    on trm.role_id=tr.id where trm.man_id=tw.wid  and tw.`status`&lt;&gt;0
+    <if test="roleId!=null and roleId!=''">
+        and tr.id= #{roleId}
+    </if>
+    )
+</select>
+
+
+    <select id="selectNoExistManlistByroleid"  parameterType="net.sppan.base.entity.condition.ConditionRoleMan"  resultMap="existrolemanMapper">
+        select tw.id 'manId',tw.`name`'manname'
+        from tb_workman tw
+        where not EXISTS(
+        select 1 from tb_role_man trm LEFT  JOIN tb_role tr
+        on trm.role_id=tr.id where trm.man_id=tw.wid  and tw.`status`&lt;&gt;0
+        <if test="roleId!=null and roleId!=''">
+            and tr.id= #{roleId}
+        </if>
+        )
+    </select>
+</mapper>

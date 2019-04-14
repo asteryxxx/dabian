@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.sppan.base.dao.ApplyMoneyMapper">
+    <resultMap type="net.sppan.base.entity.test.PicResult" id="applyMoneyMapper">
+        <result property="num" column="num" />
+        <result property="name" column="name" />
+    </resultMap>
+
+    <select id="findApplybyDate" parameterType="int"
+            resultMap="applyMoneyMapper">
+       select count(*) as num,t.acceptname as name from tb_applymoney t
+        <where>
+
+        <if test="_parameter != null  and _parameter== '1'.toString()">
+      TO_DAYS(create_time) = TO_DAYS(NOW()) GROUP BY applyname
+        </if>
+         <if test="_parameter != null  and _parameter== '3'.toString()">
+             <![CDATA[  TO_DAYS(NOW())-TO_DAYS(create_time)<=4 GROUP BY applyname]]>
+          </if>
+            <if test="_parameter != null  and _parameter== '7'.toString()">
+                <![CDATA[  DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(create_time)GROUP BY applyname ]]>
+            </if>
+        </where>
+    </select>
+</mapper>

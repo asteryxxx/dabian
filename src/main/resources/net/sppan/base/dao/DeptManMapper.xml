@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.sppan.base.dao.DeptManMapper">
+    <resultMap id="deptmanMapper" type="net.sppan.base.entity.test.DeptmanExt">
+        <result property="id" column="id"></result>
+        <result property="deptman" column="deptman"></result>
+        <result property="manname" column="manname"></result>
+        <result property="manId" column="manId"></result>
+        <result property="zt" column="zt"></result>
+        <result property="wid" column="wid"></result>
+
+    </resultMap>
+
+
+
+    <select id="selectListBydeptman"  parameterType="net.sppan.base.entity.condition.ConditionRoleMan"  resultMap="deptmanMapper">
+
+        select td.id'id',td.`name`'deptman',tw.`name`'manname',tw.id'manId',tw.`status`'zt',
+        tw.wid'wid'
+        from tb_dept td inner JOIN tb_dept_man tdm on (td.id=tdm.dept_id)
+        inner join tb_workman tw on(tw.wid=tdm.man_id) where tw.`status`&lt;&gt;0
+        <if test="deptMan!=null and deptMan!=''">
+            and  td.`name`like '%${deptMan}%'
+        </if>
+        <if test="manName!=null and manName!=''">
+            and    tw.`name`like '%${manName}%'
+        </if>
+        ORDER BY  td.id
+    </select>
+
+    <select id="selectDeptByPostId"  parameterType="int"  resultType="net.sppan.base.entity.test.TbDept">
+      select td.*
+    from tb_post tp JOIN tb_dept_post tdm on (tp.id=tdm.post_id)
+    join tb_dept td on(td.id=tdm.dept_id)
+        <if test="_parameter != null">
+          where tp.id=#{postId}
+        </if>
+    </select>
+</mapper>
